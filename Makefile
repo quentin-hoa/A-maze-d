@@ -20,7 +20,8 @@ LDFLAGS	=	-lcsfml-graphics -lcsfml-system -lcsfml-audio \
 LIBS	=	./lib/my_printf/my_printf.a \
 			./lib/other_functions/other_functions.a
 
-SRC		=	./src/main.c
+SRC		=	./src/main.c \
+			./src/parsing.c
 
 OBJ		=	$(SRC:.c=.o)
 
