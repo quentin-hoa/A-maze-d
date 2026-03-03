@@ -60,9 +60,14 @@ typedef struct values_s {
     int number_of_robots;
 } values_t;
 
-int parsing(int argc, char **argv, values_t *values_s);
-int my_atoi(char const *str);
-int my_atoi_quentin(char *str);
-int my_printf(const char *format, ...);
+typedef struct queue_node_s {
+    room_t *room;
+    struct queue_node_s *next;
+} queue_node_t;
+
+typedef struct queue_s {
+    queue_node_t *front;
+    queue_node_t *rear;
+} queue_t;
 
 #endif
