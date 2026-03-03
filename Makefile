@@ -5,7 +5,7 @@
 ## Makefile
 ##
 
-NAME	=	project_name
+NAME	=	amazed
 
 CC		=	clang
 

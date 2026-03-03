@@ -39,7 +39,10 @@ typedef struct room_s {
     int x;
     int y;
     TYPE type;
+
     bool occupied;
+    int distance;
+    bool visited;
     tunnel_t *tunnels;
     struct room_s *next;
 } room_t;
@@ -47,14 +50,19 @@ typedef struct room_s {
 typedef struct robot_s {
     int id;
     room_t *current_room;
+    bool arrived;
     struct robot_s *next;
 } robot_t;
-
 
 typedef struct values_s {
     int number_of_rooms;
     int density_of_connections;
     int number_of_robots;
 } values_t;
+
+int parsing(int argc, char **argv, values_t *values_s);
+int my_atoi(char const *str);
+int my_atoi_quentin(char *str);
+int my_printf(const char *format, ...);
 
 #endif
