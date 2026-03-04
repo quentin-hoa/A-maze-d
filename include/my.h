@@ -15,6 +15,7 @@
     #include <math.h>
     #include <string.h>
     #include <unistd.h>
+    #include <stdbool.h>
 
 // Include my_printf functions
     #include "../lib/my_printf/include/my_printf.h"
@@ -47,17 +48,11 @@ typedef struct room_s {
     struct room_s *next;
 } room_t;
 
-typedef struct robot_s {
-    int id;
-    room_t *current_room;
-    bool arrived;
-    struct robot_s *next;
-} robot_t;
-
 typedef struct values_s {
     int number_of_rooms;
     int density_of_connections;
     int number_of_robots;
+    int nb_round;
 } values_t;
 
 typedef struct queue_node_s {
@@ -69,5 +64,26 @@ typedef struct queue_s {
     queue_node_t *front;
     queue_node_t *rear;
 } queue_t;
+
+
+typedef struct path_s {
+    room_t **rooms;
+    int length;
+    int robots_count;
+    struct path_s *next;
+} path_t;
+
+typedef struct robot_s {
+    int id;
+    path_t *path;
+    int pos_in_path;
+    bool finished;
+} robot_t;
+
+int calcul_distances(room_t *head, room_t *end);
+path_t *extract_single_path(room_t *start, room_t *end);
+void print_distance(room_t *head);
+void assign_robots(path_t *paths, robot_t *robots, int nb_robots);
+void solve_lemin(path_t *paths, robot_t *robots, int nb_robots);
 
 #endif

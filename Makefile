@@ -21,7 +21,9 @@ LIBS	=	./lib/my_printf/my_printf.a \
 			./lib/other_functions/other_functions.a
 
 SRC		=	./src/main.c \
-			./src/parsing.c
+			./src/parsing.c \
+			./src/algo.c \
+			./src/calcul_distance.c
 
 OBJ		=	$(SRC:.c=.o)
 

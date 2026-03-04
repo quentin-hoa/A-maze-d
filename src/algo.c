@@ -6,82 +6,136 @@
 */
 
 #include "../include/my.h"
-#include <math.h>
 #include <stdlib.h>
 
-queue_t *init_queue(void)
+void print_distance(room_t *head)
 {
-    queue_t *q = malloc(sizeof(queue_t));
+    room_t *current = head;
 
-    if (!q)
-        return NULL;
-    q->front = NULL;
-    q->rear = NULL;
-    return q;
-}
-
-void add_to_queue(queue_t *queue, room_t *to_add)
-{
-    queue_node_t *new_node = malloc(sizeof(queue_node_t));
-
-    if (!new_node || !to_add)
-        return;
-    new_node->room = to_add;
-    new_node->next = NULL;
-    if (queue->rear == NULL) {
-        queue->front = new_node;
-        queue->rear = new_node;
-        return;
+    while (current) {
+        printf("room %s distance to end: %d\n", current->name, current->distance);
+        current = current->next;
     }
-    queue->rear->next = new_node;
-    queue->rear = new_node;
 }
 
-room_t *remove_from_queue(queue_t *queue)
+path_t *extract_single_path(room_t *start, room_t *end)
 {
-    queue_node_t *temp;
-    room_t *room;
+    room_t *curr = NULL;
+    int len = 0;
+    tunnel_t *t = start->tunnels;
+    room_t *first_step = NULL;
 
-    if (queue->front == NULL)
-        return NULL;
-    temp = queue->front;
-    room = temp->room;
-    queue->front = queue->front->next;
-    if (queue->front == NULL)
-        queue->rear = NULL;
-    free(temp);
-    return room;
-}
-
-void go_in_tunnels(tunnel_t *current_tunnel, room_t *current_room, queue_t *queue) 
-{
-    while (current_tunnel != NULL) {
-        if (current_tunnel->room_ptr->distance == -1) {
-            current_tunnel->room_ptr->distance = current_room->distance + 1;
-            add_to_queue(queue, current_tunnel->room_ptr);
+    // 1. Trouver une salle adjacente au START qui n'est pas encore "bloquée"
+    while (t) {
+        if (t->room_ptr->type == END || (t->room_ptr->distance > 0 && t->room_ptr->distance != -2)) {
+            first_step = t->room_ptr;
+            break;
         }
-        current_tunnel = current_tunnel->next;
+        t = t->next;
+    }
+    if (!first_step) return NULL;
+
+    path_t *path = malloc(sizeof(path_t));
+    path->rooms = malloc(sizeof(room_t *) * 2000); // Taille sécurisée
+    path->robots_count = 0;
+    path->next = NULL;
+
+    curr = first_step;
+    while (curr != NULL) {
+        path->rooms[len++] = curr;
+        if (curr->type == END) break;
+
+        // On sauvegarde la distance actuelle et on marque la salle comme "bloquée" (-2)
+        int current_dist = curr->distance;
+        curr->distance = -2; 
+
+        tunnel_t *tmp = curr->tunnels;
+        room_t *next_step = NULL;
+        while (tmp) {
+            // Priorité absolue à la sortie END
+            if (tmp->room_ptr->type == END) {
+                next_step = tmp->room_ptr;
+                break;
+            }
+            // Sinon on suit la pente de distance (distance - 1)
+            if (tmp->room_ptr->distance == (current_dist - 1) && tmp->room_ptr->distance != -2) {
+                next_step = tmp->room_ptr;
+                break;
+            }
+            tmp = tmp->next;
+        }
+        curr = next_step;
+        
+        // Sécurité anti-boucle : si on stagne ou si len explose
+        if (len > 1990) {
+            curr = NULL;
+            break;
+        }
+    }
+
+    // Validation : si le chemin ne mène pas à END, on libère tout
+    if (len == 0 || path->rooms[len - 1]->type != END) {
+        free(path->rooms);
+        free(path);
+        return NULL;
+    }
+    path->length = len;
+    return path;
+}
+
+// Répartit les robots sur les chemins selon la formule (longueur + nb_robots)
+void assign_robots(path_t *paths, robot_t *robots, int nb_robots)
+{
+    for (int i = 0; i < nb_robots; i++) {
+        path_t *best = paths;
+        for (path_t *curr = paths; curr; curr = curr->next) {
+            if ((curr->length + curr->robots_count) < (best->length + best->robots_count))
+                best = curr;
+        }
+        robots[i].id = i + 1;
+        robots[i].path = best;
+        robots[i].pos_in_path = -1;
+        robots[i].finished = false;
+        best->robots_count++;
     }
 }
 
-int calcul_distances(room_t *head, room_t *end)
+// Gère le mouvement tour par tour
+void solve_lemin(path_t *paths, robot_t *robots, int nb_robots)
 {
-    room_t *current_room = NULL;
-    tunnel_t *current_tunnel = NULL;
-    queue_t *queue = init_queue();
+    int finished = 0;
+    
+    printf("#moves\n"); // INDISPENSABLE
+    while (finished < nb_robots) {
+        bool moves_in_this_round = false;
+        bool first_print = true;
 
-    if (!head || !end || !queue)
-        return 84;
-    for (room_t *tmp = head; tmp != NULL; tmp = tmp->next) {
-        tmp->distance = -1;
+        for (int i = 0; i < nb_robots; i++) {
+            if (robots[i].finished) continue;
+
+            int next_idx = robots[i].pos_in_path + 1;
+            room_t *target = robots[i].path->rooms[next_idx];
+
+            if (target->type == END || !target->occupied) {
+                if (robots[i].pos_in_path != -1)
+                    robots[i].path->rooms[robots[i].pos_in_path]->occupied = false;
+
+                robots[i].pos_in_path++;
+                
+                if (!first_print) printf(" ");
+                printf("P%d-%s", robots[i].id, target->name);
+                first_print = false;
+                moves_in_this_round = true;
+
+                if (target->type == END) {
+                    robots[i].finished = true;
+                    finished++;
+                } else {
+                    target->occupied = true;
+                }
+            }
+        }
+        if (!moves_in_this_round) break;
+        printf("\n");
     }
-    end->distance = 0;
-    add_to_queue(queue, end);
-    while (queue->front != NULL) {
-        current_room = remove_from_queue(queue);
-        current_tunnel = current_room->tunnels;
-        go_in_tunnels(current_tunnel, current_room, queue);
-    }
-    free(queue);
-    return 0;
 }
