@@ -2,5 +2,5 @@
 *.a
 *.log
 maze
-src/algo.c
 src/main1.c
+src/algo1.c
