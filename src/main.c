@@ -25,5 +25,16 @@ int handle_paths(room_t *start, room_t *end, values_t *values)
 
 int main(int argc, char **argv)
 {
-    //parsing fonction de Daniel
+    values_t values = {0};
+
+    (void)argc;
+    (void)argv;
+    if (parsing(&values) == 84)
+        return 84;
+    if (!values.start || !values.end) {
+        write(2, "No start or end room\n", 21);
+        return 84;
+    }
+    calcul_distances(values.rooms, values.end);
+    return handle_paths(values.start, values.end, &values);
 }

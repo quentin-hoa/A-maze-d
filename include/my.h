@@ -49,10 +49,10 @@ typedef struct room_s {
 } room_t;
 
 typedef struct values_s {
-    int number_of_rooms;
-    int density_of_connections;
     int number_of_robots;
-    int nb_round;
+    room_t *rooms;
+    room_t *start;
+    room_t *end;
 } values_t;
 
 typedef struct queue_node_s {
@@ -80,6 +80,7 @@ typedef struct robot_s {
     bool finished;
 } robot_t;
 
+int parsing(values_t *values);
 int calcul_distances(room_t *head, room_t *end);
 path_t *extract_single_path(room_t *start, room_t *end);
 void print_distance(room_t *head);
