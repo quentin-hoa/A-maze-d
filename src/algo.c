@@ -99,3 +99,20 @@ path_t *extract_single_path(room_t *start, room_t *end)
     path->length = len;
     return path;
 }
+
+void assign_robots(path_t *paths, robot_t *robots, int nb_robots)
+{
+    path_t *best = paths;
+
+    for (int i = 0; i < nb_robots; i++) {
+        for (path_t *curr = paths; curr; curr = curr->next) {
+            if ((curr->length + curr->robots_count) < (best->length + best->robots_count))
+                best = curr;
+        }
+        robots[i].id = i + 1;
+        robots[i].path = best;
+        robots[i].pos_in_path = -1;
+        robots[i].finished = false;
+        best->robots_count++;
+    }
+}

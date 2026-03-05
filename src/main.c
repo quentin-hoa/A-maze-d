@@ -18,8 +18,11 @@ int handle_paths(room_t *start, room_t *end, values_t *values)
         path_list = new_path;
         new_path = extract_single_path(start, end);
     }
-    if (!path_list)
+    if (!path_list) {
+        my_printf("no path found, start and end not connected\n");
         return 84;
+    }
+    assign_robots(path_list, robots, values->number_of_robots);
     return 0;
 }
 
