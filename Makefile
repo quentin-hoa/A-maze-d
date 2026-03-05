@@ -20,9 +20,9 @@ LDFLAGS	=	-lcsfml-graphics -lcsfml-system -lcsfml-audio \
 LIBS	=	./lib/my_printf/my_printf.a \
 			./lib/other_functions/other_functions.a
 
-SRC		=	./src/main.c \
+SRC		=	./src/main1.c \
 			./src/parsing.c \
-			./src/algo.c \
+			./src/algo1.c \
 			./src/calcul_distance.c
 
 OBJ		=	$(SRC:.c=.o)

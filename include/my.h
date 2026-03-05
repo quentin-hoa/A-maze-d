@@ -68,8 +68,8 @@ typedef struct queue_s {
 
 typedef struct path_s {
     room_t **rooms;
-    int length;
-    int robots_count;
+    int length; // nombre de salles dans le chemin
+    int robots_count; //nombre de robots déjà assignés à ce chemin
     struct path_s *next;
 } path_t;
 
