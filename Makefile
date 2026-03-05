@@ -23,7 +23,8 @@ LIBS	=	./lib/my_printf/my_printf.a \
 SRC		=	./src/main.c \
 			./src/parsing.c \
 			./src/algo.c \
-			./src/calcul_distance.c
+			./src/calcul_distance.c \
+			./src/move_robots.c
 
 OBJ		=	$(SRC:.c=.o)
 

@@ -23,11 +23,11 @@
 // Include other_functions
     #include "../lib/other_functions/other_functions.h"
 
-typedef enum TYPE {
+typedef enum type_s {
     START,
     MIDDLE,
     END
-} TYPE;
+} type_t;
 
 struct room_s;
 typedef struct tunnel_s {
@@ -39,7 +39,7 @@ typedef struct room_s {
     char *name;
     int x;
     int y;
-    TYPE type;
+    type_t type;
 
     bool occupied;
     int distance;
@@ -48,11 +48,17 @@ typedef struct room_s {
     struct room_s *next;
 } room_t;
 
+typedef struct line_s {
+    char *content;
+    struct line_s *next;
+} line_t;
+
 typedef struct values_s {
     int number_of_robots;
     room_t *rooms;
     room_t *start;
     room_t *end;
+    line_t *lines;
 } values_t;
 
 typedef struct queue_node_s {

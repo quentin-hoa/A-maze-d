@@ -7,6 +7,22 @@
 
 #include "../include/my.h"
 
+static void add_line(line_t **head, char *content)
+{
+    line_t *new_node = malloc(sizeof(line_t));
+    line_t *temp = *head;
+
+    new_node->content = my_strdup(content);
+    new_node->next = NULL;
+    if (*head == NULL) {
+        *head = new_node;
+        return;
+    }
+    while (temp->next)
+        temp = temp->next;
+    temp->next = new_node;
+}
+
 static room_t *find_room(room_t *head, char *name)
 {
     while (head) {
@@ -30,11 +46,11 @@ static void add_tunnel(room_t *a, room_t *b)
     b->tunnels = tb;
 }
 
-static room_t *create_room(char *name, int x, int y, TYPE type)
+static room_t *create_room(char *name, int x, int y, type_t type)
 {
     room_t *room = malloc(sizeof(room_t));
 
-    room->name = strdup(name);
+    room->name = my_strdup(name);
     room->x = x;
     room->y = y;
     room->type = type;
@@ -57,7 +73,7 @@ static void add_room(room_t **head, room_t **tail, room_t *room)
     }
 }
 
-static void parse_room(char *line, TYPE next_type, room_t **head,
+static void parse_room(char *line, type_t next_type, room_t **head,
     room_t **tail, values_t *values)
 {
     char *sp1 = strchr(line, ' ');
@@ -83,15 +99,17 @@ int parsing(values_t *values)
 {
     char *line = NULL;
     size_t len = 0;
-    TYPE next_type = MIDDLE;
+    type_t next_type = MIDDLE;
     room_t *head = NULL;
     room_t *tail = NULL;
     char *dash;
 
     if (getline(&line, &len, stdin) == -1)
         return 84;
+    add_line(&values->lines, line);
     values->number_of_robots = my_atoi(line);
     while (getline(&line, &len, stdin) != -1) {
+        add_line(&values->lines, line);
         int l = strlen(line);
         if (l > 0 && line[l - 1] == '\n')
             line[l - 1] = '\0';
