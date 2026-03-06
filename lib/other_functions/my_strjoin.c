@@ -13,7 +13,6 @@ char *my_strjoin(char const *s1, char const *s2, char const *sep)
     int len2;
     int len_sep;
     char *result;
-    int i = 0;
 
     if (s1 == NULL || s2 == NULL)
         return NULL;

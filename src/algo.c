@@ -30,7 +30,7 @@ room_t *find_next_step(room_t *current, int current_dist)
         if (tmp->room_ptr->type == END)
             return tmp->room_ptr;
         if (tmp->room_ptr->distance == (current_dist - 1)
-        && tmp->room_ptr->distance != -2) {
+            && tmp->room_ptr->distance != -2) {
             next_step = tmp->room_ptr;
             break;
         }
@@ -67,14 +67,13 @@ static void go_trough_all_rooms(room_t *curr, path_t *path,
     }
 }
 
-path_t *extract_single_path(room_t *start, room_t *end)
+path_t *extract_single_path(room_t *start)
 {
     room_t *curr = NULL;
     int len = 0;
-    tunnel_t *t = start->tunnels;
     room_t *first_step = NULL;
     path_t *path = malloc(sizeof(path_t));
-    int current_dist;
+    int current_dist = 0;
 
     path->rooms = malloc(sizeof(room_t *) * 2000);
     get_first_step(start, &first_step);
@@ -94,7 +93,7 @@ void get_best(path_t *paths, path_t **best)
 {
     for (path_t *curr = paths; curr; curr = curr->next) {
         if ((curr->length + curr->robots_count) <
-        ((*best)->length + (*best)->robots_count))
+            ((*best)->length + (*best)->robots_count))
             *best = curr;
     }
 }

@@ -14,33 +14,33 @@ static void display_info(line_t *curr_l, line_t *lines)
 
     my_printf("#number_of_robots\n");
     while (curr_l) {
-        if (!rooms_header_done && !strchr(curr_l->content, '-') &&
+        if (!rooms_header_done && !my_strchr(curr_l->content, '-') &&
             curr_l->content[0] >= '0' && curr_l->content[0] <= '9' &&
             curr_l != lines) {
             my_printf("#rooms\n");
             rooms_header_done = true;
         }
-        if (!tunnels_header_done && strchr(curr_l->content, '-')) {
+        if (!tunnels_header_done && my_strchr(curr_l->content, '-')) {
             my_printf("#tunnels\n");
             tunnels_header_done = true;
         }
         my_printf("%s", curr_l->content);
-        if (curr_l->content[strlen(curr_l->content) - 1] != '\n')
+        if (curr_l->content[my_strlen(curr_l->content) - 1] != '\n')
             my_printf("\n");
         curr_l = curr_l->next;
     }
 }
 
-int handle_paths(room_t *start, room_t *end, values_t *values)
+int handle_paths(room_t *start, values_t *values)
 {
     path_t *path_list = NULL;
-    path_t *new_path = extract_single_path(start, end);
+    path_t *new_path = extract_single_path(start);
     robot_t *robots = malloc(sizeof(robot_t) * values->number_of_robots);
 
     while (new_path != NULL) {
         new_path->next = path_list;
         path_list = new_path;
-        new_path = extract_single_path(start, end);
+        new_path = extract_single_path(start);
     }
     if (!path_list) {
         my_printf("no path found, start and end not connected\n");
@@ -65,5 +65,5 @@ int main(int argc, char **argv)
         return 84;
     }
     calcul_distances(values.rooms, values.end);
-    return handle_paths(values.start, values.end, &values);
+    return handle_paths(values.start, &values);
 }

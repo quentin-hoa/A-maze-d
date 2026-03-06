@@ -88,7 +88,7 @@ typedef struct robot_s {
 
 int parsing(values_t *values);
 int calcul_distances(room_t *head, room_t *end);
-path_t *extract_single_path(room_t *start, room_t *end);
+path_t *extract_single_path(room_t *start);
 void print_distance(room_t *head);
 void assign_robots(path_t *paths, robot_t *robots, int nb_robots);
 void solve_lemin(path_t *paths, robot_t *robots, int nb_robots);
