@@ -20,7 +20,7 @@ int my_u(unsigned int n)
     int i = 0;
 
     if (n == 0) {
-        printf("0");
+        my_c('0');
         return 1;
     }
     while (n > 0) {
