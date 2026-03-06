@@ -185,7 +185,8 @@ int my_showmem(char const *str, int size);
 
 /*
 ** print_only_alpha - Prints only alphabetic characters from arguments
-** Example: print_only_alpha(3, {"prog", "Hello123", "World!"}) -> prints "Hello World\n"
+** Example: print_only_alpha(3, {"prog", "Hello123", "World!"})
+**          -> prints "Hello World\n"
 **          print_only_alpha(2, {"prog", "42test"}) -> prints "test\n"
 */
 int print_only_alpha(int argc, char **argv);
@@ -284,7 +285,8 @@ int my_str_count_word(char const *str, char const *word);
 
 /*
 ** my_print_word_count - Prints word count in format "Word": count
-** Example: my_print_word_count("hello world hello", "hello") -> prints "hello": 2
+** Example: my_print_word_count("hello world hello", "hello")
+**          -> prints "hello": 2
 **          my_print_word_count("test", "test") -> prints "test": 1
 */
 void my_print_word_count(char const *str, char const *word);

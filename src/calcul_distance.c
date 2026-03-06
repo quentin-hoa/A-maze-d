@@ -52,7 +52,7 @@ room_t *remove_from_queue(queue_t *queue)
 }
 
 void go_in_tunnels(tunnel_t *current_tunnel,
-    room_t *current_room, queue_t *queue) 
+    room_t *current_room, queue_t *queue)
 {
     while (current_tunnel != NULL) {
         if (current_tunnel->room_ptr->distance == -1) {

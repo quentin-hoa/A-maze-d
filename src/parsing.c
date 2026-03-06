@@ -10,7 +10,7 @@
 static void add_line(line_t **head, char *content)
 {
     line_t *new_node = malloc(sizeof(line_t));
-    line_t *temp = *head;
+    line_t *last = *head;
 
     new_node->content = my_strdup(content);
     new_node->next = NULL;
@@ -18,32 +18,32 @@ static void add_line(line_t **head, char *content)
         *head = new_node;
         return;
     }
-    while (temp->next)
-        temp = temp->next;
-    temp->next = new_node;
+    while (last->next)
+        last = last->next;
+    last->next = new_node;
 }
 
-static room_t *find_room(room_t *head, char *name)
+static room_t *find_room(room_t *room, char *name)
 {
-    while (head) {
-        if (strcmp(head->name, name) == 0)
-            return head;
-        head = head->next;
+    while (room) {
+        if (strcmp(room->name, name) == 0)
+            return room;
+        room = room->next;
     }
     return NULL;
 }
 
 static void add_tunnel(room_t *a, room_t *b)
 {
-    tunnel_t *ta = malloc(sizeof(tunnel_t));
-    tunnel_t *tb = malloc(sizeof(tunnel_t));
+    tunnel_t *to_b = malloc(sizeof(tunnel_t));
+    tunnel_t *to_a = malloc(sizeof(tunnel_t));
 
-    ta->room_ptr = b;
-    ta->next = a->tunnels;
-    a->tunnels = ta;
-    tb->room_ptr = a;
-    tb->next = b->tunnels;
-    b->tunnels = tb;
+    to_b->room_ptr = b;
+    to_b->next = a->tunnels;
+    a->tunnels = to_b;
+    to_a->room_ptr = a;
+    to_a->next = b->tunnels;
+    b->tunnels = to_a;
 }
 
 static room_t *create_room(char *name, int x, int y, type_t type)
@@ -73,26 +73,63 @@ static void add_room(room_t **head, room_t **tail, room_t *room)
     }
 }
 
-static void parse_room(char *line, type_t next_type, room_t **head,
-    room_t **tail, values_t *values)
+static room_t *parse_room(char *line, type_t next_type,
+    room_t **head, room_t **tail)
 {
-    char *sp1 = strchr(line, ' ');
-    char *sp2;
+    char *name_end = strchr(line, ' ');
+    char *x_end;
     room_t *room;
 
-    if (!sp1)
-        return;
-    *sp1 = '\0';
-    sp2 = strchr(sp1 + 1, ' ');
-    if (!sp2)
-        return;
-    *sp2 = '\0';
-    room = create_room(line, my_atoi(sp1 + 1), my_atoi(sp2 + 1), next_type);
+    if (!name_end)
+        return NULL;
+    *name_end = '\0';
+    x_end = strchr(name_end + 1, ' ');
+    if (!x_end)
+        return NULL;
+    *x_end = '\0';
+    room = create_room(line, my_atoi(name_end + 1), my_atoi(x_end + 1),
+        next_type);
     add_room(head, tail, room);
-    if (next_type == START)
+    return room;
+}
+
+static void parse_tunnel(char *line, room_t *head)
+{
+    char *dash;
+    room_t *a;
+    room_t *b;
+
+    dash = strchr(line, '-');
+    if (!dash)
+        return;
+    *dash = '\0';
+    a = find_room(head, line);
+    b = find_room(head, dash + 1);
+    if (a && b)
+        add_tunnel(a, b);
+}
+
+static void process_line(char *line, type_t *next_type,
+    room_t **tail, values_t *values)
+{
+    room_t *room;
+
+    if (strcmp(line, "##start") == 0 || strcmp(line, "##end") == 0) {
+        *next_type = (strcmp(line, "##start") == 0) ? START : END;
+        return;
+    }
+    if (strchr(line, '-') && !strchr(line, ' ')) {
+        parse_tunnel(line, values->rooms);
+        return;
+    }
+    if (!strchr(line, ' '))
+        return;
+    room = parse_room(line, *next_type, &values->rooms, tail);
+    if (*next_type == START)
         values->start = room;
-    if (next_type == END)
+    if (*next_type == END)
         values->end = room;
+    *next_type = MIDDLE;
 }
 
 int parsing(values_t *values)
@@ -100,35 +137,21 @@ int parsing(values_t *values)
     char *line = NULL;
     size_t len = 0;
     type_t next_type = MIDDLE;
-    room_t *head = NULL;
     room_t *tail = NULL;
-    char *dash;
+    int line_len;
 
+    values->rooms = NULL;
     if (getline(&line, &len, stdin) == -1)
         return 84;
     add_line(&values->lines, line);
     values->number_of_robots = my_atoi(line);
     while (getline(&line, &len, stdin) != -1) {
         add_line(&values->lines, line);
-        int l = strlen(line);
-        if (l > 0 && line[l - 1] == '\n')
-            line[l - 1] = '\0';
-        if (strcmp(line, "##start") == 0) {
-            next_type = START;
-        } else if (strcmp(line, "##end") == 0) {
-            next_type = END;
-        } else if ((dash = strchr(line, '-')) && !strchr(line, ' ')) {
-            *dash = '\0';
-            room_t *a = find_room(head, line);
-            room_t *b = find_room(head, dash + 1);
-            if (a && b)
-                add_tunnel(a, b);
-        } else if (strchr(line, ' ')) {
-            parse_room(line, next_type, &head, &tail, values);
-            next_type = MIDDLE;
-        }
+        line_len = strlen(line);
+        if (line_len > 0 && line[line_len - 1] == '\n')
+            line[line_len - 1] = '\0';
+        process_line(line, &next_type, &tail, values);
     }
     free(line);
-    values->rooms = head;
     return 0;
 }

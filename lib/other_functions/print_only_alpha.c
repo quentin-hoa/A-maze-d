@@ -7,6 +7,16 @@
 
 #include "other_functions.h"
 
+static void print_alpha_chars(char *str)
+{
+    for (int i = 0; str[i] != '\0'; i++) {
+        if ((str[i] >= 'a' && str[i] <= 'z') ||
+            (str[i] >= 'A' && str[i] <= 'Z') ||
+            str[i] == ' ')
+            my_printf("%c", str[i]);
+    }
+}
+
 int print_only_alpha(int argc, char **argv)
 {
     if (argc < 1 || argv == NULL)
@@ -14,12 +24,7 @@ int print_only_alpha(int argc, char **argv)
     for (int i = 1; i < argc; i++) {
         if (argv[i] == NULL)
             return 84;
-        for (int j = 0; argv[i][j] != '\0'; j++) {
-            if ((argv[i][j] >= 'a' && argv[i][j] <= 'z') ||
-                (argv[i][j] >= 'A' && argv[i][j] <= 'Z') ||
-                argv[i][j] == ' ')
-                my_printf("%c", argv[i][j]);
-        }
+        print_alpha_chars(argv[i]);
     }
     my_printf("\n");
     return 0;
