@@ -36,7 +36,6 @@ libs:
 
 $(NAME):	$(OBJ)
 			@$(CC) $(OBJ) $(LIBS) -o $(NAME) $(LDFLAGS)
-			@printf "  LINK\t$(NAME)\n"
 
 %.o:		%.c
 			@$(CC) $(CFLAGS) -c $< -o $@

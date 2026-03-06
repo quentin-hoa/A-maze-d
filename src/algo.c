@@ -27,7 +27,8 @@ room_t *find_next_step(room_t *current, int current_dist)
     room_t *next_step = NULL;
 
     while (tmp) {
-        if (tmp->room_ptr->type == END)
+        if (tmp->room_ptr->type == END
+            && tmp->room_ptr->distance == current_dist - 1)
             return tmp->room_ptr;
         if (tmp->room_ptr->distance == (current_dist - 1)
             && tmp->room_ptr->distance != -2) {

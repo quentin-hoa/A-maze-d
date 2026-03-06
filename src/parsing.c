@@ -90,26 +90,26 @@ static void add_room(room_t **head, room_t **tail, room_t *room)
     }
 }
 
-static room_t *parse_room(char *line, type_t next_type,
-    room_t **head, room_t **tail)
+static int parse_room(char *line, type_t next_type,
+    values_t *values, room_t **tail)
 {
     char *name_end = my_strchr(line, ' ');
     char *x_end;
     room_t *room;
 
-    if (!name_end)
-        return NULL;
+    if (!name_end || !my_strchr(name_end + 1, ' '))
+        return 84;
     *name_end = '\0';
     x_end = my_strchr(name_end + 1, ' ');
-    if (!x_end)
-        return NULL;
     *x_end = '\0';
     room = create_room(line, my_atoi(name_end + 1), my_atoi(x_end + 1),
         next_type);
     if (!room)
-        return NULL;
-    add_room(head, tail, room);
-    return room;
+        return 84;
+    add_room(&values->rooms, tail, room);
+    values->start = (next_type == START) ? room : values->start;
+    values->end = (next_type == END) ? room : values->end;
+    return 0;
 }
 
 static void parse_tunnel(char *line, room_t *head)
@@ -131,23 +131,22 @@ static void parse_tunnel(char *line, room_t *head)
 static int process_line(char *line, type_t *next_type,
     room_t **tail, values_t *values)
 {
-    room_t *room;
-
-    if (my_strcmp(line, "##start") == 0 || my_strcmp(line, "##end") == 0) {
-        *next_type = (my_strcmp(line, "##start") == 0) ? START : END;
+    if (line[0] == '#' && line[1] != '#')
+        return 84;
+    if (my_strcmp(line, "##start") == 0)
+        *next_type = START;
+    if (my_strcmp(line, "##end") == 0 && values->start)
+        *next_type = END;
+    if (line[0] == '#')
         return 0;
-    }
     if (my_strchr(line, '-') && !my_strchr(line, ' ')) {
         parse_tunnel(line, values->rooms);
         return 0;
     }
     if (!my_strchr(line, ' '))
         return 0;
-    room = parse_room(line, *next_type, &values->rooms, tail);
-    if (!room)
+    if (parse_room(line, *next_type, values, tail) != 0)
         return 84;
-    values->start = (*next_type == START) ? room : values->start;
-    values->end = (*next_type == END) ? room : values->end;
     *next_type = MIDDLE;
     return 0;
 }
@@ -185,5 +184,7 @@ int parsing(values_t *values)
     add_line(&values->lines, line);
     values->number_of_robots = my_atoi(line);
     free(line);
+    if (values->number_of_robots <= 0)
+        return 84;
     return read_maze(values, &tail);
 }

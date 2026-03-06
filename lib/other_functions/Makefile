@@ -58,7 +58,6 @@ all:		$(NAME)
 $(NAME):	$(OBJ)
 			@ar rc $(NAME) $(OBJ)
 			@ranlib $(NAME)
-			@printf "  AR\t$(NAME)\n"
 
 %.o:		%.c
 			@$(CC) $(CFLAGS) -c $< -o $@
